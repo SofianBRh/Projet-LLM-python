@@ -18,8 +18,6 @@ def compter_lettres(fichier):
 
     return probabilites
 
-import string
-
 def compter_lettres_precedentes(fichier):
     alphabet = string.ascii_lowercase + "#" + "@"
     compteur_lettres = {lettre: {precedente: 0 for precedente in alphabet} for lettre in alphabet}
@@ -41,30 +39,36 @@ def compter_lettres_precedentes(fichier):
 
     return probabilites
 
-import string
-
 def compter_double_lettres_precedentes(fichier):
     alphabet = string.ascii_lowercase + "#" + "@"
     compteur_lettres = {lettre: {premiere_precedente + deuxieme_precedente: 0 for premiere_precedente in alphabet for deuxieme_precedente in alphabet} for lettre in alphabet}
-    total_lettres = 0
+    total_lettres = {lettre: 0 for lettre in alphabet}
 
     with open(fichier, 'r', encoding='utf-8') as f:
-        for ligne in f:
-            mots = ligne.strip().lower().split()
-            for mot in mots:
-                for i in range(2, len(mot)):
-                    lettre = mot[i]
-                    premiere_precedente = mot[i - 1]
-                    deuxieme_precedente = mot[i - 2]
+        for lettre_globale in alphabet:
+            f.seek(0)
+            for ligne in f:
+                mots = ligne.strip().lower().split()
+                for mot in mots:
+                    for i in range(1, len(mot)):
+                        if mot[i] == lettre_globale:
+                            premiere_precedente = mot[i-1]
+                            if i >= 2:
+                                deuxieme_precedente = mot[i-2]
+                            else:
+                                deuxieme_precedente = "#"
 
-                    paire_precedentes = premiere_precedente + deuxieme_precedente
-                    if lettre in compteur_lettres and paire_precedentes in compteur_lettres[lettre]:
-                        compteur_lettres[lettre][paire_precedentes] += 1
-                        total_lettres += 1
+                            paire_precedentes = premiere_precedente + deuxieme_precedente
+                            if paire_precedentes in compteur_lettres[lettre_globale]:
+                                compteur_lettres[lettre_globale][paire_precedentes] += 1
+                                total_lettres[lettre_globale] += 1
 
-    probabilites = {lettre: {paire_precedentes: (compteur / total_lettres)*100 for paire_precedentes, compteur in paire_precedentes.items()} for lettre, paire_precedentes in compteur_lettres.items()}
+            print(lettre_globale, " : ", total_lettres[lettre_globale])
+
+    probabilites = {lettre: {paire_precedentes: (compteur / total_lettres[lettre])*100 if total_lettres[lettre] != 0 else 0 for paire_precedentes, compteur in compteur_lettres[lettre].items()} for lettre in alphabet}
 
     return probabilites
+
 
 
 
