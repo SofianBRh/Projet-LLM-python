@@ -1,5 +1,7 @@
 import string
+import random
 
+# Fonction pour compter les lettres
 def compter_lettres(fichier):
     compteur_lettres = dict.fromkeys(string.ascii_lowercase, 0)
     total_lettres = 0
@@ -13,15 +15,12 @@ def compter_lettres(fichier):
                         compteur_lettres[lettre] += 1
                         total_lettres += 1
 
-
     probabilites = {lettre: (compteur / total_lettres)*100 for lettre, compteur in compteur_lettres.items()}
-
     return probabilites
 
-import string
-
+# Fonction pour compter les lettres précédentes
 def compter_lettres_precedentes(fichier):
-    alphabet = string.ascii_lowercase + "#" + "@"
+    alphabet = string.ascii_lowercase
     compteur_lettres = {lettre: {precedente: 0 for precedente in alphabet} for lettre in alphabet}
     total_lettres = 0
 
@@ -38,55 +37,35 @@ def compter_lettres_precedentes(fichier):
                         total_lettres += 1
 
     probabilites = {lettre: {precedente: (compteur / total_lettres)*100 for precedente, compteur in precedentes.items()} for lettre, precedentes in compteur_lettres.items()}
-
     return probabilites
 
-import string
+# Fonction pour générer un mot
+def generer_mot(probabilites, longueur_max):
+    lettres_possibles = [lettre for lettre in probabilites.keys()]
+    lettre_actuelle = random.choice(lettres_possibles)
+    mot = lettre_actuelle
 
-def compter_double_lettres_precedentes(fichier):
-    alphabet = string.ascii_lowercase + "#" + "@"
-    compteur_lettres = {lettre: {premiere_precedente + deuxieme_precedente: 0 for premiere_precedente in alphabet for deuxieme_precedente in alphabet} for lettre in alphabet}
-    total_lettres = 0
+    for _ in range(1, longueur_max):
+        suivantes = probabilites.get(lettre_actuelle, {})
+        total = sum(suivantes.values())
+        
+        if total == 0:
+            break
 
-    with open(fichier, 'r', encoding='utf-8') as f:
-        for ligne in f:
-            mots = ligne.strip().lower().split()
-            for mot in mots:
-                for i in range(2, len(mot)):
-                    lettre = mot[i]
-                    premiere_precedente = mot[i - 1]
-                    deuxieme_precedente = mot[i - 2]
+        suivantes_filtrées = {lettre: freq for lettre, freq in suivantes.items()}
+        poids = [freq / total for freq in suivantes_filtrées.values()]
 
-                    paire_precedentes = premiere_precedente + deuxieme_precedente
-                    if lettre in compteur_lettres and paire_precedentes in compteur_lettres[lettre]:
-                        compteur_lettres[lettre][paire_precedentes] += 1
-                        total_lettres += 1
+        if not poids:
+            break
 
-    probabilites = {lettre: {paire_precedentes: (compteur / total_lettres)*100 for paire_precedentes, compteur in paire_precedentes.items()} for lettre, paire_precedentes in compteur_lettres.items()}
+        lettre_actuelle = random.choices(list(suivantes_filtrées.keys()), weights=poids, k=1)[0]
+        mot += lettre_actuelle
 
-    return probabilites
+    return mot
 
+# Génération des probabilités avec compter_lettres_precedentes
+probabilites_lettres_precedentes = compter_lettres_precedentes('./liste_francais.txt')
 
-
-# probabilites_lettres = compter_lettres('./liste_francais.txt')
-
-# for lettre, probabilité in probabilites_lettres.items():
-#     print(f"La lettre '{lettre}' apparaît avec une probabilité de {probabilité:.4f}")
-
-
-# probabilites_lettres_precedentes = compter_lettres_precedentes('./liste_francais.txt')
-
-# for lettre, precedentes in probabilites_lettres_precedentes.items():
-#     print(f"Lettre: {lettre}")
-#     for precedente, proba in precedentes.items():
-#         print(f"  Précédente: {precedente}, Fréquence: {proba:.4f}%")
-#     print("----")
-
-
-probabilites_double_lettres_precedentes = compter_double_lettres_precedentes('./liste_francais.txt')
-
-for lettre, double_precedentes in probabilites_double_lettres_precedentes.items():
-    print(f"Lettre: {lettre}")
-    for double_precedentes, proba in double_precedentes.items():
-        print(f"  Précédente: {double_precedentes}, Fréquence: {proba:.8f}%")
-    print("----")
+# Utilisation de la fonction generer_mot originale
+mot_genere = generer_mot(probabilites_lettres_precedentes, 5)
+print("Mot généré:", mot_genere)
