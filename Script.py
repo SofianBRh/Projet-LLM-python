@@ -21,7 +21,7 @@ def compter_lettres(fichier):
 import string
 
 def compter_lettres_precedentes(fichier):
-    alphabet = string.ascii_lowercase + " "
+    alphabet = string.ascii_lowercase + "#" + "@"
     compteur_lettres = {lettre: {precedente: 0 for precedente in alphabet} for lettre in alphabet}
     total_lettres = 0
 
@@ -29,7 +29,7 @@ def compter_lettres_precedentes(fichier):
         for ligne in f:
             mots = ligne.strip().lower().split()
             for mot in mots:
-                for i in range(1, len(mot)+1):
+                for i in range(1, len(mot)):
                     lettre = mot[i]
                     precedente = mot[i - 1]
 
