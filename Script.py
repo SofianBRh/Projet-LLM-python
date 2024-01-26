@@ -45,7 +45,7 @@ import string
 
 def compter_double_lettres_precedentes(fichier):
     alphabet = string.ascii_lowercase + "#" + "@"
-    compteur_lettres = {lettre: {precedente: 0 for precedente in alphabet} for lettre in alphabet}
+    compteur_lettres = {lettre: {premiere_precedente + deuxieme_precedente: 0 for premiere_precedente in alphabet for deuxieme_precedente in alphabet} for lettre in alphabet}
     total_lettres = 0
 
     with open(fichier, 'r', encoding='utf-8') as f:
@@ -54,8 +54,8 @@ def compter_double_lettres_precedentes(fichier):
             for mot in mots:
                 for i in range(2, len(mot)):
                     lettre = mot[i]
-                    premiere_precedente = mot[i - 1] if i - 1 >= 0 else "#"
-                    deuxieme_precedente = mot[i - 2] if i - 2 >= 0 else "#"
+                    premiere_precedente = mot[i - 1]
+                    deuxieme_precedente = mot[i - 2]
 
                     paire_precedentes = premiere_precedente + deuxieme_precedente
                     if lettre in compteur_lettres and paire_precedentes in compteur_lettres[lettre]:
@@ -88,5 +88,5 @@ probabilites_double_lettres_precedentes = compter_double_lettres_precedentes('./
 for lettre, double_precedentes in probabilites_double_lettres_precedentes.items():
     print(f"Lettre: {lettre}")
     for double_precedentes, proba in double_precedentes.items():
-        print(f"  Précédente: {double_precedentes}, Fréquence: {proba:.4f}%")
+        print(f"  Précédente: {double_precedentes}, Fréquence: {proba:.8f}%")
     print("----")
