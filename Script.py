@@ -52,17 +52,17 @@ def compter_double_lettres_precedentes(fichier):
         for ligne in f:
             mots = ligne.strip().lower().split()
             for mot in mots:
-                for i in range(1, len(mot)):
+                for i in range(2, len(mot)):
                     lettre = mot[i]
                     premiere_precedente = mot[i - 1] if i - 1 >= 0 else "#"
                     deuxieme_precedente = mot[i - 2] if i - 2 >= 0 else "#"
 
-                    if lettre in compteur_lettres and premiere_precedente in compteur_lettres[lettre] and deuxieme_precedente in compteur_lettres[lettre]:
-                        paire_precedentes = premiere_precedente + deuxieme_precedente
+                    paire_precedentes = premiere_precedente + deuxieme_precedente
+                    if lettre in compteur_lettres and paire_precedentes in compteur_lettres[lettre]:
                         compteur_lettres[lettre][paire_precedentes] += 1
                         total_lettres += 1
 
-    probabilites = {lettre: {paire_precedentes: (compteur / total_lettres)*100 for paire_precedentes, compteur in precedentes.items()} for lettre, precedentes in compteur_lettres.items()}
+    probabilites = {lettre: {paire_precedentes: (compteur / total_lettres)*100 for paire_precedentes, compteur in paire_precedentes.items()} for lettre, paire_precedentes in compteur_lettres.items()}
 
     return probabilites
 
